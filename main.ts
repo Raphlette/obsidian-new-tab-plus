@@ -1,4 +1,4 @@
-import { App, FileView, Plugin, PluginSettingTab, Setting, TFile, View, Workspace, WorkspaceLeaf, WorkspaceTabs } from 'obsidian';
+import { App, FileView, MarkdownView, Plugin, PluginSettingTab, Setting, TFile, View, Workspace, WorkspaceLeaf, WorkspaceTabs } from 'obsidian';
 
 interface NewTabPlusSettings {
   CheckFileCurrentTabs: boolean;
@@ -16,6 +16,8 @@ export default class NewTabPlusPlugin extends Plugin {
   nextFrameOpenLeaves = Array<WorkspaceLeaf>();
   nextFrameFilePaths = Array<string | View>();
 
+  oldLeaf: WorkspaceLeaf;
+
   hasClicked = false;
 
   async onload() {
@@ -25,7 +27,7 @@ export default class NewTabPlusPlugin extends Plugin {
       capture: true,
     });
 
-    this.app.workspace.on('file-open', this.fileHandler);
+    this.registerEvent(this.app.workspace.on('file-open', this.fileHandler));
 
     this.addSettingTab(new NewTabPlusSettingsTab(this.app, this));
   }
@@ -68,41 +70,38 @@ export default class NewTabPlusPlugin extends Plugin {
     if (this.nextFrameFilePaths.length !== this.previousFrameFilePaths.length) return;
     for (let leaf in this.nextFrameOpenLeaves) {
       if (this.previousFrameFilePaths[leaf] !== this.nextFrameFilePaths[leaf]) {
+        this.oldLeaf = this.app.workspace.getActiveViewOfType(View)?.leaf as WorkspaceLeaf;
+
         if (this.previousFrameFilePaths.contains(this.nextFrameFilePaths[leaf]) && this.settings.CheckFileCurrentTabs) {
           const index = this.previousFrameFilePaths.indexOf(this.nextFrameFilePaths[leaf]);
-          await this.updateLeaf(this.previousFrameFilePaths[leaf]);
-          this.app.workspace.revealLeaf(this.previousFrameOpenLeaves[index]);
+          await this.retreiveOldFile(this.previousFrameFilePaths[leaf]);
+          this.oldLeaf.detach();
+          this.app.workspace.setActiveLeaf(this.previousFrameOpenLeaves[index], { focus: true });
           this.resetVariables();
           return;
         }
 
-        await this.updateLeaf(this.previousFrameFilePaths[leaf]);
-        await this.openNewLeaf(this.nextFrameFilePaths[leaf]);
+        await this.retreiveOldFile(this.previousFrameFilePaths[leaf]);
+        this.switchtoNewFile();
         this.resetVariables();
         break;
       }
     }
   };
 
-  updateLeaf = async (element: string | View): Promise<void> => {
-    let oldLeaf = this.app.workspace.getLeaf(false);
-
+  retreiveOldFile = async (element: string | View): Promise<void> => {
+    let newLeaf = this.app.workspace.getLeaf(true);
+    this.app.workspace.setActiveLeaf(newLeaf, { focus: true });
     if (element instanceof View) {
-      await oldLeaf.setViewState({ type: element.getViewType() });
+      await newLeaf.setViewState({ type: element.getViewType(), state: element.getState() });
     } else {
       await this.openFile(element);
     }
   };
 
-  openNewLeaf = async (element: string | View): Promise<void> => {
-    let newLeaf = this.app.workspace.getLeaf(true);
-    this.app.workspace.revealLeaf(newLeaf);
-    this.app.workspace.setActiveLeaf(newLeaf, { focus: true });
-    if (element instanceof View) {
-      await newLeaf.setViewState({ type: element.getViewType() });
-    } else {
-      await this.openFile(element);
-    }
+  switchtoNewFile = (): void => {
+    this.app.workspace.revealLeaf(this.oldLeaf);
+    this.app.workspace.setActiveLeaf(this.oldLeaf, { focus: true });
   };
 
   openFile = async (path: string, newTab: boolean = false): Promise<void> => {
