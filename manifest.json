@@ -1,7 +1,7 @@
 {
 	"id": "new-tab-plus",
 	"name": "New Tab +",
-	"version": "1.4.0",
+	"version": "1.4.1",
 	"minAppVersion": "1.8.4",
 	"description": "Allow to open Markdown files, graphs, canvases, images, audio, video, and PDFs in a new tab by default.",
 	"author": "Raphaël Le Carval",

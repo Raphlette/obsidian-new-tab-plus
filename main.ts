@@ -163,7 +163,10 @@ export default class NewTabPlusPlugin extends Plugin {
   //#region settings
   async loadSettings() {
     const data = await this.loadData();
-    const valideTypes = [...DEFAULT_SETTINGS.ValideTypes, ...data.AdditionalValideTypes.split(',').map((item: string) => item.trim())];
+    let valideTypes = [...DEFAULT_SETTINGS.ValideTypes];
+    if (data.AdditionalValideTypes) {
+      valideTypes = [...valideTypes, ...data.AdditionalValideTypes.split(',').map((item: string) => item.trim())];
+    }
     data.ValideTypes = new Set(valideTypes);
     this.settings = Object.assign({}, DEFAULT_SETTINGS, data);
   }
