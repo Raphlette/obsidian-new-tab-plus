@@ -2,11 +2,11 @@
 
 ## Main feature
 
-Allow to open markdown files, graph and canvas in new tab as the default behavior.
+New Tab+ allows you to open Markdown files, graphs, canvases, images, audio, video, and PDFs in a new tab by default.
 
 ## Optional feature
 
-Upon opening a file or canvas, if a version of the file is already open in your tab, focus on the version of the file instead. (toggleable)
+- When opening a file or canvas, if the file is already open in another tab, the plugin will focus on the existing tab instead of opening a duplicate. (This feature is toggleable.)
 
 # Bugs / issues
 

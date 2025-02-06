@@ -1,10 +1,10 @@
 {
 	"id": "new-tab-plus",
 	"name": "New Tab +",
-	"version": "1.3.0",
-	"minAppVersion": "0.15.0",
-	"description": "Allow to open markdown files, graph and canvas in new tab as the default behavior.",
+	"version": "1.4.0",
+	"minAppVersion": "1.8.4",
+	"description": "Allow to open Markdown files, graphs, canvases, images, audio, video, and PDFs in a new tab by default.",
 	"author": "Raphaël Le Carval",
-	"authorUrl": "https://github.com/Raphlette",
+	"authorUrl": "https://raphael-lecarval-portfolio.vercel.app/",
 	"isDesktopOnly": true
 }
