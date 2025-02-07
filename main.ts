@@ -3,19 +3,16 @@ import { App, FileView, Plugin, PluginSettingTab, Setting, TFile, View, Workspac
 interface NewTabPlusSettings {
   CheckFileCurrentTabs: boolean;
   Delay: number;
-  ValideTypes: Set<string>;
-  AdditionalValideTypes: string;
 }
 
 const DEFAULT_SETTINGS: NewTabPlusSettings = {
   CheckFileCurrentTabs: true,
   Delay: 30,
-  ValideTypes: new Set(['markdown', 'graph', 'canvas', 'image', 'video', 'audio', 'pdf']),
-  AdditionalValideTypes: '',
 };
 
 export default class NewTabPlusPlugin extends Plugin {
   settings: NewTabPlusSettings;
+  valideTypes: Set<string> = new Set(['markdown', 'graph', 'canvas', 'image', 'video', 'audio', 'pdf']);
 
   prevOpenTabs: WorkspaceLeaf[] = [];
   prevTabFilePaths: (string | View)[] = [];
@@ -56,7 +53,7 @@ export default class NewTabPlusPlugin extends Plugin {
   getOpenTabs = (): Array<WorkspaceLeaf> => {
     const leaves: Array<WorkspaceLeaf> = [];
     this.app.workspace.iterateAllLeaves((leaf) => {
-      if (this.settings.ValideTypes.has(leaf.view.getViewType())) {
+      if (this.valideTypes.has(leaf.view.getViewType())) {
         leaves.push(leaf);
       }
     });
@@ -163,11 +160,6 @@ export default class NewTabPlusPlugin extends Plugin {
   //#region settings
   async loadSettings() {
     const data = await this.loadData();
-    let valideTypes = [...DEFAULT_SETTINGS.ValideTypes];
-    if (data.AdditionalValideTypes) {
-      valideTypes = [...valideTypes, ...data.AdditionalValideTypes.split(',').map((item: string) => item.trim())];
-    }
-    data.ValideTypes = new Set(valideTypes);
     this.settings = Object.assign({}, DEFAULT_SETTINGS, data);
   }
 
@@ -213,22 +205,5 @@ class NewTabPlusSettingsTab extends PluginSettingTab {
           await this.plugin.saveSettings();
         });
       });
-
-    // const desc = document.createDocumentFragment();
-    // desc.append('Basic file types are by default opperated by this plugin (markdown, pdf, image, video, audio, graph, canvas). ', desc.createEl('br'), 'If you wish to add a specific file format (coming from another plugin for example), you can add it here. (Reach concerned plugin development team for more information.)');
-
-    // new Setting(containerEl)
-    //   .setName('File types')
-    //   .setDesc(desc)
-    //   .addTextArea((textArea) => {
-    //     textArea
-    //       .setPlaceholder('fileType1,fileType2')
-    //       .setValue(this.plugin.settings.AdditionalValideTypes)
-    //       .onChange(async (value) => {
-    //         this.plugin.settings.AdditionalValideTypes = value;
-
-    //         await this.plugin.saveSettings();
-    //       });
-    //   });
   }
 }
